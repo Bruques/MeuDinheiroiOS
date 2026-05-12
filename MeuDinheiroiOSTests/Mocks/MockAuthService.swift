@@ -6,7 +6,6 @@
 //
 
 import Foundation
-@testable import MeuDinheiroiOS
 
 class MockAuthService: AuthServiceProtocol {
     var shouldReturnError = false

@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0E048FAC2FB2A4BF0011915D /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 0E048FAB2FB2A4BF0011915D /* FirebaseAuth */; };
+		0E048FAE2FB2A4BF0011915D /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0E048FAD2FB2A4BF0011915D /* FirebaseCore */; };
+		0E048FB02FB2A51B0011915D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0E048FAF2FB2A51B0011915D /* GoogleService-Info.plist */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		0E048F8E2FB293E50011915D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -19,7 +25,18 @@
 /* Begin PBXFileReference section */
 		0E048F782FB293260011915D /* MeuDinheiroiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeuDinheiroiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0E048F8A2FB293E50011915D /* MeuDinheiroiOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeuDinheiroiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0E048FAF2FB2A51B0011915D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0E048FB82FB2A9B20011915D /* Exceptions for "MeuDinheiroiOSTests" folder in "MeuDinheiroiOS" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Mocks/MockAuthService.swift,
+			);
+			target = 0E048F772FB293260011915D /* MeuDinheiroiOS */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0E048F7A2FB293260011915D /* MeuDinheiroiOS */ = {
@@ -29,6 +46,9 @@
 		};
 		0E048F8B2FB293E50011915D /* MeuDinheiroiOSTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0E048FB82FB2A9B20011915D /* Exceptions for "MeuDinheiroiOSTests" folder in "MeuDinheiroiOS" target */,
+			);
 			path = MeuDinheiroiOSTests;
 			sourceTree = "<group>";
 		};
@@ -39,6 +59,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0E048FAE2FB2A4BF0011915D /* FirebaseCore in Frameworks */,
+				0E048FAC2FB2A4BF0011915D /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -58,6 +80,7 @@
 				0E048F7A2FB293260011915D /* MeuDinheiroiOS */,
 				0E048F8B2FB293E50011915D /* MeuDinheiroiOSTests */,
 				0E048F792FB293260011915D /* Products */,
+				0E048FAF2FB2A51B0011915D /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -90,6 +113,8 @@
 			);
 			name = MeuDinheiroiOS;
 			packageProductDependencies = (
+				0E048FAB2FB2A4BF0011915D /* FirebaseAuth */,
+				0E048FAD2FB2A4BF0011915D /* FirebaseCore */,
 			);
 			productName = MeuDinheiroiOS;
 			productReference = 0E048F782FB293260011915D /* MeuDinheiroiOS.app */;
@@ -146,6 +171,9 @@
 			);
 			mainGroup = 0E048F6F2FB293260011915D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0E048FAA2FB2A4BF0011915D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0E048F792FB293260011915D /* Products */;
 			projectDirPath = "";
@@ -162,6 +190,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0E048FB02FB2A51B0011915D /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -484,6 +513,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0E048FAA2FB2A4BF0011915D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.13.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0E048FAB2FB2A4BF0011915D /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0E048FAA2FB2A4BF0011915D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		0E048FAD2FB2A4BF0011915D /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0E048FAA2FB2A4BF0011915D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0E048F702FB293260011915D /* Project object */;
 }
