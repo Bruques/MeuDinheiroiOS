@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseCore
+import SwiftData
 
 @main
 struct MeuDinheiroiOSApp: App {
@@ -18,5 +19,6 @@ struct MeuDinheiroiOSApp: App {
         WindowGroup {
             LoginView(authService: FirebaseAuthService())
         }
+        .modelContainer(for: Expense.self)
     }
 }
