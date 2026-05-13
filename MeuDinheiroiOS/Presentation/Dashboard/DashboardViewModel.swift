@@ -15,7 +15,6 @@ class DashboardViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var totalMes: Double = 0.0
     
-    // Filtros de tempo padrão (mês e ano atuais)
     @Published var mesAtual: Int = Calendar.current.component(.month, from: Date())
     @Published var anoAtual: Int = Calendar.current.component(.year, from: Date())
     
@@ -30,7 +29,6 @@ class DashboardViewModel: ObservableObject {
         defer { isLoading = false }
         
         do {
-            // Busca no Cérebro (Repositório) que vai decidir se vem da API ou do SwiftData
             expenses = try await repository.getExpenses(month: mesAtual, year: anoAtual)
             calcularTotal()
         } catch {
@@ -42,7 +40,6 @@ class DashboardViewModel: ObservableObject {
         totalMes = expenses.reduce(0) { $0 + $1.value }
     }
     
-    // Método para avançar ou retroceder os meses
     func mudarMes(incremento: Int) async {
         var dateComponents = DateComponents()
         dateComponents.month = incremento
@@ -55,5 +52,21 @@ class DashboardViewModel: ObservableObject {
             anoAtual = calendar.component(.year, from: novaData)
             await carregarGastos()
         }
+    }
+}
+
+struct CategorySummary: Identifiable {
+    let id = UUID()
+    let category: String
+    let total: Double
+}
+
+extension DashboardViewModel {
+    var groupedExpenses: [CategorySummary] {
+        let grouped = Dictionary(grouping: expenses) { $0.category }
+        return grouped.map { (category, expenses) in
+            CategorySummary(category: category, total: expenses.reduce(0) { $0 + $1.value })
+        }
+        .sorted { $0.total > $1.total }
     }
 }

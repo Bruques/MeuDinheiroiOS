@@ -20,7 +20,6 @@ struct DashboardView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                // 🔴 AVISO DE MODO OFFLINE (Só aparece se a internet cair)
                 if !syncManager.isOnline {
                     HStack {
                         Image(systemName: "wifi.slash")
@@ -68,18 +67,19 @@ struct DashboardView: View {
                 }
                 .padding(.vertical)
                 
-                // 📊 GRÁFICO DE CATEGORIAS
+                // 📊 GRÁFICO ESTILO WEB (DONUT AGRUPADO)
                 if !viewModel.expenses.isEmpty {
-                    Chart {
-                        ForEach(viewModel.expenses) { expense in
-                            BarMark(
-                                x: .value("Categoria", expense.category),
-                                y: .value("Valor", expense.value)
-                            )
-                            .foregroundStyle(by: .value("Categoria", expense.category))
-                        }
+                    Chart(viewModel.groupedExpenses) { item in
+                        SectorMark(
+                            angle: .value("Valor", item.total),
+                            innerRadius: .ratio(0.6),
+                            angularInset: 2.0
+                        )
+                        .cornerRadius(5)
+                        .foregroundStyle(by: .value("Categoria", item.category))
                     }
-                    .frame(height: 200)
+                    .frame(height: 240)
+                    .chartLegend(position: .top, spacing: 15)
                     .padding()
                 }
                 
@@ -100,7 +100,6 @@ struct DashboardView: View {
                             Text(String(format: "R$ %.2f", expense.value))
                                 .fontWeight(.bold)
                             
-                            // Ícone de reloginho para itens que não subiram pro servidor ainda
                             if expense.syncStatus == .pending {
                                 Image(systemName: "clock.fill")
                                     .foregroundColor(.orange)
@@ -116,14 +115,12 @@ struct DashboardView: View {
                 .listStyle(.plain)
             }
             .navigationTitle("Dashboard")
-            // Carrega os dados assim que a tela aparece
             .task {
                 await viewModel.carregarGastos()
             }
         }
     }
     
-    // Função auxiliar para converter o número do mês em nome
     private func mesNome(_ mes: Int) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "pt_BR")
