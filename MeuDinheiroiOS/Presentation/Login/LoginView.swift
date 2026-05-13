@@ -10,9 +10,12 @@ import SwiftUI
 
 struct LoginView: View {
     @StateObject private var viewModel: LoginViewModel
+    private let repository: ExpenseRepositoryProtocol
     
-    init(authService: AuthServiceProtocol) {
+    init(authService: AuthServiceProtocol,
+         repository: ExpenseRepositoryProtocol) {
         _viewModel = StateObject(wrappedValue: LoginViewModel(authService: authService))
+        self.repository = repository
     }
     
     var body: some View {
@@ -85,13 +88,14 @@ struct LoginView: View {
             .padding()
 
             .navigationDestination(isPresented: $viewModel.isAuthenticated) {
-                Text("Bem-vindo ao Dashboard!")
+                DashboardView(repository: repository)
                     .navigationBarBackButtonHidden()
             }
         }
     }
 }
 
-#Preview {
-    LoginView(authService: MockAuthService())
-}
+// TODO: - Arrumar o preview
+//#Preview {
+//    LoginView(authService: MockAuthService())
+//}

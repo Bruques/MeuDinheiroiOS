@@ -20,7 +20,7 @@ class NetworkService {
     
     // MARK: - Buscar Gastos do Mês (GET)
     func fetchExpenses(month: Int, year: Int, token: String) async throws -> [Expense] {
-        guard let url = URL(string: "\(baseURL)/expenses?month=\(month)&year=\(year)") else {
+        guard let url = URL(string: "\(baseURL)/expenses/mes?mes=\(month)&ano=\(year)") else {
             throw NetworkError.invalidURL
         }
         

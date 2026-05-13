@@ -38,23 +38,28 @@ final class Expense: Identifiable, Equatable, Codable {
     enum CodingKeys: String, CodingKey {
         case id, name, value, category, date, paymentType, syncStatus
     }
-
+    
     // Necessário para o Decodable (GET)
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
+        if let idInt = try? container.decode(Int.self, forKey: .id) {
+            id = String(idInt)
+        } else {
+            id = try container.decode(String.self, forKey: .id)
+        }
+        
         name = try container.decode(String.self, forKey: .name)
         value = try container.decode(Double.self, forKey: .value)
         category = try container.decode(String.self, forKey: .category)
         date = try container.decode(Date.self, forKey: .date)
-        paymentType = try container.decode(String.self, forKey: .paymentType)
-        syncStatus = try container.decode(SyncStatus.self, forKey: .syncStatus)
+        paymentType = (try? container.decodeIfPresent(String.self, forKey: .paymentType)) ?? "Não informado"
+        syncStatus = (try? container.decode(SyncStatus.self, forKey: .syncStatus)) ?? .synced
     }
 
     // Necessário para o Encodable (POST)
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(id, forKey: .id)
+//        try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
         try container.encode(value, forKey: .value)
         try container.encode(category, forKey: .category)

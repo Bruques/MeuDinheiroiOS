@@ -37,8 +37,9 @@ struct MeuDinheiroiOSApp: App {
     
     var body: some Scene {
         WindowGroup {
-            LoginView(authService: FirebaseAuthService())
-                .environmentObject(syncManager)
+            LoginView(authService: FirebaseAuthService(),
+                      repository: repository)
+                        .environmentObject(syncManager)
         }
         .modelContainer(for: Expense.self)
     }
