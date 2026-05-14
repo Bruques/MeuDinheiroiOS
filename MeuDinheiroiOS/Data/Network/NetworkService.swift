@@ -52,7 +52,7 @@ class NetworkService {
             
             return expenses
         } catch {
-            print("Erro ao decodificar: \(error)")
+            print("DEBUG: Erro ao decodificar: \(error)")
             throw NetworkError.decodingError
         }
     }

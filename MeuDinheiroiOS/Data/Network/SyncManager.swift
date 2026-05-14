@@ -33,7 +33,7 @@ class SyncManager: ObservableObject {
                 self?.isOnline = currentlyOnline
                 
                 if currentlyOnline {
-                    print("🌐 Internet restaurada! Iniciando sincronização...")
+                    print("DEBUG: 🌐 Internet restaurada! Iniciando sincronização...")
                     try? await self?.repository?.syncOfflineExpenses()
                 }
             }

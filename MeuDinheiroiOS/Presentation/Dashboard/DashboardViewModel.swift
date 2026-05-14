@@ -32,7 +32,7 @@ class DashboardViewModel: ObservableObject {
             expenses = try await repository.getExpenses(month: mesAtual, year: anoAtual)
             calcularTotal()
         } catch {
-            print("Erro ao buscar gastos: \(error)")
+            print("DEBUG: Erro ao buscar gastos: \(error)")
         }
     }
     

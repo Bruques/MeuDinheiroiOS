@@ -65,6 +65,6 @@ final class Expense: Identifiable, Equatable, Codable {
         try container.encode(category, forKey: .category)
         try container.encode(date, forKey: .date)
         try container.encode(paymentType, forKey: .paymentType)
-        try container.encode(syncStatus, forKey: .syncStatus)
+//        try container.encode(syncStatus, forKey: .syncStatus)
     }
 }

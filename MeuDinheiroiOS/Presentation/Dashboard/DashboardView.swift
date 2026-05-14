@@ -12,9 +12,12 @@ import Charts
 struct DashboardView: View {
     @StateObject private var viewModel: DashboardViewModel
     @EnvironmentObject var syncManager: SyncManager
+    @State private var showAddExpense = false
+    private let repository: ExpenseRepositoryProtocol
     
     init(repository: ExpenseRepositoryProtocol) {
         _viewModel = StateObject(wrappedValue: DashboardViewModel(repository: repository))
+        self.repository = repository
     }
     
     var body: some View {
@@ -115,8 +118,31 @@ struct DashboardView: View {
                 .listStyle(.plain)
             }
             .navigationTitle("Dashboard")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showAddExpense = true }) {
+                        Image(systemName: "plus")
+                            .fontWeight(.bold)
+                    }
+                }
+            }
             .task {
                 await viewModel.carregarGastos()
+            }
+            .sheet(isPresented: $showAddExpense) {
+                AddExpenseView(repository: repository, onSaveSuccess: {
+                    Task { await viewModel.carregarGastos() }
+                }) 
+            }
+            .onChange(of: syncManager.isOnline) { isOnline in
+                if isOnline {
+                    print("DEBUG: Internet voltou! Recarregando a tela...")
+                    Task {
+                        // Dá 1 segundinho para a sincronização de fundo do backend terminar
+                        try? await Task.sleep(nanoseconds: 1_000_000_000)
+                        await viewModel.carregarGastos()
+                    }
+                }
             }
         }
     }
