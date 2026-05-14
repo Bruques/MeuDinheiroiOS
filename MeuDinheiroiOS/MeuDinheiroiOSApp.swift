@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseCore
+import FirebaseAuth
 import SwiftData
 
 @main
@@ -14,7 +15,7 @@ struct MeuDinheiroiOSApp: App {
     let container: ModelContainer
     let repository: ExpenseRepository
     let syncManager: SyncManager
-    
+    @State private var isAuthenticated: Bool = false
     
     init() {
         FirebaseApp.configure()
@@ -30,6 +31,8 @@ struct MeuDinheiroiOSApp: App {
             self.repository = ExpenseRepository(networkService: network, context: context)
             self.syncManager = SyncManager(repository: repository)
             
+            _isAuthenticated = State(initialValue: Auth.auth().currentUser != nil)
+            
         } catch {
             fatalError("Não foi possível inicializar o SwiftData: \(error)")
         }
@@ -37,10 +40,20 @@ struct MeuDinheiroiOSApp: App {
     
     var body: some Scene {
         WindowGroup {
-            LoginView(authService: FirebaseAuthService(),
-                      repository: repository)
+            Group {
+                if isAuthenticated {
+                    // Se estiver logado, vai direto para o Dashboard
+                    DashboardView(repository: repository)
                         .environmentObject(syncManager)
+                } else {
+                    // Se não, pede login (passando um callback para atualizar o estado)
+                    LoginView(authService: FirebaseAuthService(), repository: repository) {
+                        self.isAuthenticated = true
+                    }
+                    .environmentObject(syncManager)
+                }
+            }
         }
-        .modelContainer(for: Expense.self)
+        .modelContainer(container)
     }
 }

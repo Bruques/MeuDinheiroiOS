@@ -11,11 +11,14 @@ import SwiftUI
 struct LoginView: View {
     @StateObject private var viewModel: LoginViewModel
     private let repository: ExpenseRepositoryProtocol
+    var onLoginSuccess: () -> Void
     
     init(authService: AuthServiceProtocol,
-         repository: ExpenseRepositoryProtocol) {
+         repository: ExpenseRepositoryProtocol,
+         onLoginSuccess: @escaping () -> Void) {
         _viewModel = StateObject(wrappedValue: LoginViewModel(authService: authService))
         self.repository = repository
+        self.onLoginSuccess = onLoginSuccess
     }
     
     var body: some View {
@@ -90,6 +93,11 @@ struct LoginView: View {
             .navigationDestination(isPresented: $viewModel.isAuthenticated) {
                 DashboardView(repository: repository)
                     .navigationBarBackButtonHidden()
+            }
+        }
+        .onChange(of: viewModel.isAuthenticated) { authenticated in
+            if authenticated {
+                onLoginSuccess()
             }
         }
     }
