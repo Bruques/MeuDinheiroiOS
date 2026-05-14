@@ -33,13 +33,12 @@ final class Expense: Identifiable, Equatable, Codable {
         self.syncStatus = syncStatus
     }
 
-    // --- MÁGICA PARA O CODABLE FUNCIONAR COM CLASSES @MODEL ---
+    // I have todo that to work with a @MODEL class
     
     enum CodingKeys: String, CodingKey {
         case id, name, value, category, date, paymentType, syncStatus
     }
     
-    // Necessário para o Decodable (GET)
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         if let idInt = try? container.decode(Int.self, forKey: .id) {
@@ -56,15 +55,12 @@ final class Expense: Identifiable, Equatable, Codable {
         syncStatus = (try? container.decode(SyncStatus.self, forKey: .syncStatus)) ?? .synced
     }
 
-    // Necessário para o Encodable (POST)
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
         try container.encode(value, forKey: .value)
         try container.encode(category, forKey: .category)
         try container.encode(date, forKey: .date)
         try container.encode(paymentType, forKey: .paymentType)
-//        try container.encode(syncStatus, forKey: .syncStatus)
     }
 }

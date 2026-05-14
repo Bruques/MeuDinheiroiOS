@@ -122,7 +122,7 @@ class ExpenseRepository: ExpenseRepositoryProtocol {
         for expense in pendingExpenses {
             do {
                 try await networkService.postExpense(expense, token: token)
-                expense.syncStatus = .synced // Maravilha, subiu!
+                expense.syncStatus = .synced
             } catch {
                 print("DEBUG: Falha ao sincronizar \(expense.name). Erro: \(error.localizedDescription)")            }
         }

@@ -16,10 +16,8 @@ class AddExpenseViewModel: ObservableObject {
     @Published var category: String = "Alimentação"
     @Published var paymentType: String = "Crédito"
     @Published var date: Date = Date()
-    
     @Published var isSaving = false
     
-    // Listas pré-definidas para os menus (Pickers)
     let categories = ["Alimentação", "Transporte", "Saúde", "Educação", "Moradia", "Lazer", "Outros"]
     let paymentTypes = ["Crédito", "Débito", "Pix", "Dinheiro"]
     
@@ -29,16 +27,13 @@ class AddExpenseViewModel: ObservableObject {
         self.repository = repository
     }
     
-    // Função para salvar e retornar se deu certo
     func salvar() async -> Bool {
-        // Converte o valor digitado (String) para Double, trocando vírgula por ponto se necessário
         let valorFormatado = value.replacingOccurrences(of: ",", with: ".")
         guard let numericValue = Double(valorFormatado) else { return false }
         
         isSaving = true
         defer { isSaving = false }
         
-        // Cria a entidade do modelo
         let expense = Expense(
             name: name,
             value: numericValue,
@@ -48,7 +43,6 @@ class AddExpenseViewModel: ObservableObject {
         )
         
         do {
-            // O repositório faz a mágica de salvar offline e mandar pro Render
             try await repository.saveExpense(expense)
             return true
         } catch {
