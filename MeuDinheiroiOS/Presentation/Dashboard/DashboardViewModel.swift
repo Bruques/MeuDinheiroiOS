@@ -53,6 +53,18 @@ class DashboardViewModel: ObservableObject {
             await carregarGastos()
         }
     }
+    
+    func deletarGasto(_ expense: Expense) async {
+        do {
+            try await repository.deleteExpense(expense)
+            if let index = expenses.firstIndex(where: { $0.id == expense.id }) {
+                expenses.remove(at: index)
+            }
+        } catch {
+            print("DEBUG: Erro ao deletar gasto: \(error)")
+            // Opcional: Você pode colocar uma variável @Published de erro aqui para mostrar um alerta na tela
+        }
+    }
 }
 
 struct CategorySummary: Identifiable {

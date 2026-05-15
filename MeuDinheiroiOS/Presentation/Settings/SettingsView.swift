@@ -48,7 +48,7 @@ struct SettingsView: View {
         do {
             try Auth.auth().signOut()
         } catch {
-            print("Erro ao deslogar: \(error.localizedDescription)")
+            print("DEBUG: Erro ao deslogar: \(error.localizedDescription)")
         }
     }
 }

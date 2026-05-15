@@ -100,25 +100,14 @@ class ExpenseRepository: ExpenseRepositoryProtocol {
     
     // MARK: - Sincronizador de Pendências
     func syncOfflineExpenses() async throws {
-        
         if isSyncing { return }
-        
         isSyncing = true
         defer { isSyncing = false }
-        
-        // 1. Puxa tudo do banco local
         let descriptor = FetchDescriptor<Expense>()
         let allLocal = (try? context.fetch(descriptor)) ?? []
-        
-        // 2. Filtra só os que estão pendentes de envio
         let pendingExpenses = allLocal.filter { $0.syncStatus == .pending }
-        
-        // Se não tiver nada, encerra cedo
         guard !pendingExpenses.isEmpty else { return }
-        
         let token = try await Auth.auth().currentUser?.getIDToken() ?? ""
-        
-        // 3. Tenta enviar um por um
         for expense in pendingExpenses {
             do {
                 try await networkService.postExpense(expense, token: token)
@@ -126,8 +115,17 @@ class ExpenseRepository: ExpenseRepositoryProtocol {
             } catch {
                 print("DEBUG: Falha ao sincronizar \(expense.name). Erro: \(error.localizedDescription)")            }
         }
-        
-        // Salva os novos status no banco
+        try? context.save()
+    }
+    
+    // MARK: - Deletar Despesa
+    func deleteExpense(_ expense: Expense) async throws {
+        let isOnlyLocal = Int(expense.id) == nil
+        if !isOnlyLocal {
+            let token = try await Auth.auth().currentUser?.getIDToken() ?? ""
+            try await networkService.deleteExpense(id: expense.id, token: token)
+        }
+        context.delete(expense)
         try? context.save()
     }
 }

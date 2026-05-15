@@ -82,4 +82,22 @@ class NetworkService {
             throw NetworkError.invalidResponse
         }
     }
+    
+    // MARK: - Deletar Gasto (DELETE)
+    func deleteExpense(id: String, token: String) async throws {
+        guard let url = URL(string: "\(baseURL)/expenses/\(id)") else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw NetworkError.invalidResponse
+        }
+    }
 }

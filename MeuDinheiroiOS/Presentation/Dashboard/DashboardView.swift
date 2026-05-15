@@ -33,13 +33,12 @@ struct DashboardView: View {
                     .padding(.bottom, 16)
             }
             .background(Color(.systemBackground))
-            ScrollView {
-                VStack(spacing: 24) {
-                    chartSection
-                    expensesList
-                }
-                .padding(.vertical)
+            List {
+                chartSection
+                Spacer().frame(height: 16)
+                expensesList
             }
+            .listStyle(.plain)
             .navigationTitle("Dashboard")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -140,12 +139,15 @@ struct DashboardView: View {
             .frame(height: 240)
             .chartLegend(position: .top, spacing: 15)
             .padding(.horizontal)
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
         }
     }
     
     // Expenses list
     private var expensesList: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        Group {
             if viewModel.expenses.isEmpty {
                 ContentUnavailableView("Sem gastos",
                                        systemImage: "tray",
@@ -154,8 +156,16 @@ struct DashboardView: View {
             } else {
                 ForEach(viewModel.expenses) { expense in
                     ExpenseRow(expense: expense)
-                    Divider()
-                        .padding(.leading)
+                        .listRowInsets(EdgeInsets())
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                Task {
+                                    await viewModel.deletarGasto(expense)
+                                }
+                            } label: {
+                                Label("Deletar", systemImage: "trash")
+                            }
+                        }
                 }
             }
         }
