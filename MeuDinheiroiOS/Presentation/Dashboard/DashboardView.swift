@@ -13,6 +13,7 @@ struct DashboardView: View {
     @StateObject private var viewModel: DashboardViewModel
     @EnvironmentObject var syncManager: SyncManager
     @State private var showAddExpense = false
+    @State private var showSettings = false
     private let repository: ExpenseRepositoryProtocol
     
     init(repository: ExpenseRepositoryProtocol) {
@@ -41,6 +42,13 @@ struct DashboardView: View {
             }
             .navigationTitle("Dashboard")
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { showSettings = true }) {
+                        Image(systemName: "person.circle")
+                            .imageScale(.large)
+                    }
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showAddExpense = true }) {
                         Image(systemName: "plus")
@@ -55,6 +63,9 @@ struct DashboardView: View {
                 AddExpenseView(repository: repository, onSaveSuccess: {
                     Task { await viewModel.carregarGastos() }
                 })
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
             }
             .onChange(of: syncManager.isOnline) { isOnline in
                 if isOnline {

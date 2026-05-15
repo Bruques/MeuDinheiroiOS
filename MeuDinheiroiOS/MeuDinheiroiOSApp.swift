@@ -19,20 +19,13 @@ struct MeuDinheiroiOSApp: App {
     
     init() {
         FirebaseApp.configure()
-        
-        // 2. Configura SwiftData
         do {
             container = try ModelContainer(for: Expense.self)
-            
-            // 3. Inicializa as camadas de dados
             let network = NetworkService()
             let context = container.mainContext
-            
             self.repository = ExpenseRepository(networkService: network, context: context)
             self.syncManager = SyncManager(repository: repository)
-            
             _isAuthenticated = State(initialValue: Auth.auth().currentUser != nil)
-            
         } catch {
             fatalError("Não foi possível inicializar o SwiftData: \(error)")
         }
@@ -42,15 +35,18 @@ struct MeuDinheiroiOSApp: App {
         WindowGroup {
             Group {
                 if isAuthenticated {
-                    // Se estiver logado, vai direto para o Dashboard
                     DashboardView(repository: repository)
                         .environmentObject(syncManager)
                 } else {
-                    // Se não, pede login (passando um callback para atualizar o estado)
                     LoginView(authService: FirebaseAuthService(), repository: repository) {
                         self.isAuthenticated = true
                     }
                     .environmentObject(syncManager)
+                }
+            }
+            .onAppear {
+                Auth.auth().addStateDidChangeListener { _, user in
+                    self.isAuthenticated = (user != nil)
                 }
             }
         }
