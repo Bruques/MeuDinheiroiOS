@@ -100,4 +100,30 @@ class NetworkService {
             throw NetworkError.invalidResponse
         }
     }
+    
+    // MARK: - Atualizar Gasto (PUT)
+    func updateExpense(_ expense: Expense, token: String) async throws {
+        guard let url = URL(string: "\(baseURL)/expenses/\(expense.id)") else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let encoder = JSONEncoder()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        encoder.dateEncodingStrategy = .formatted(formatter)
+        
+        request.httpBody = try encoder.encode(expense)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw NetworkError.invalidResponse
+        }
+    }
 }

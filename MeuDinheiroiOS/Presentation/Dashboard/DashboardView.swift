@@ -14,6 +14,7 @@ struct DashboardView: View {
     @EnvironmentObject var syncManager: SyncManager
     @State private var showAddExpense = false
     @State private var showSettings = false
+    @State private var expenseToEdit: Expense? = nil
     private let repository: ExpenseRepositoryProtocol
     
     init(repository: ExpenseRepositoryProtocol) {
@@ -65,6 +66,11 @@ struct DashboardView: View {
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
+            }
+            .sheet(item: $expenseToEdit) { expense in
+                EditExpenseView(expense: expense, repository: repository, onSaveSuccess: {
+                    Task { await viewModel.carregarGastos() }
+                })
             }
             .onChange(of: syncManager.isOnline) { isOnline in
                 if isOnline {
@@ -157,6 +163,10 @@ struct DashboardView: View {
                 ForEach(viewModel.expenses) { expense in
                     ExpenseRow(expense: expense)
                         .listRowInsets(EdgeInsets())
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            expenseToEdit = expense
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 Task {

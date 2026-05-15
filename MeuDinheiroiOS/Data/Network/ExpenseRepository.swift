@@ -128,4 +128,15 @@ class ExpenseRepository: ExpenseRepositoryProtocol {
         context.delete(expense)
         try? context.save()
     }
+    
+    // MARK: - Atualizar Despesa
+    func updateExpense(_ expense: Expense) async throws {
+        let isOnlyLocal = Int(expense.id) == nil
+        
+        if !isOnlyLocal {
+            let token = try await Auth.auth().currentUser?.getIDToken() ?? ""
+            try await networkService.updateExpense(expense, token: token)
+        }
+        try? context.save()
+    }
 }
