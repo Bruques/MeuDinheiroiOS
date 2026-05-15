@@ -12,11 +12,24 @@ import Combine
 @MainActor
 class DashboardViewModel: ObservableObject {
     @Published var expenses: [Expense] = []
+    @Published var selectedCategories: Set<String> = []
     @Published var isLoading = false
-    @Published var totalMes: Double = 0.0
     
     @Published var mesAtual: Int = Calendar.current.component(.month, from: Date())
     @Published var anoAtual: Int = Calendar.current.component(.year, from: Date())
+    
+    var availableCategories: [String] {
+        Array(Set(expenses.map { $0.category })).sorted()
+    }
+    var filteredExpenses: [Expense] {
+        if selectedCategories.isEmpty {
+            return expenses
+        }
+        return expenses.filter { selectedCategories.contains($0.category) }
+    }
+    var totalMes: Double {
+        filteredExpenses.reduce(0) { $0 + $1.value }
+    }
     
     private let repository: ExpenseRepositoryProtocol
     
@@ -27,17 +40,11 @@ class DashboardViewModel: ObservableObject {
     func carregarGastos() async {
         isLoading = true
         defer { isLoading = false }
-        
         do {
             expenses = try await repository.getExpenses(month: mesAtual, year: anoAtual)
-            calcularTotal()
         } catch {
             print("DEBUG: Erro ao buscar gastos: \(error)")
         }
-    }
-    
-    private func calcularTotal() {
-        totalMes = expenses.reduce(0) { $0 + $1.value }
     }
     
     func mudarMes(incremento: Int) async {
@@ -50,6 +57,8 @@ class DashboardViewModel: ObservableObject {
         if let novaData = calendar.date(byAdding: dateComponents, to: dataAtual) {
             mesAtual = calendar.component(.month, from: novaData)
             anoAtual = calendar.component(.year, from: novaData)
+            
+            clearFilters()
             await carregarGastos()
         }
     }
@@ -62,10 +71,25 @@ class DashboardViewModel: ObservableObject {
             }
         } catch {
             print("DEBUG: Erro ao deletar gasto: \(error)")
-            // Opcional: Você pode colocar uma variável @Published de erro aqui para mostrar um alerta na tela
         }
     }
+    
+    // MARK: - Funções de Filtro
+    
+    func toggleCategory(_ category: String) {
+        if selectedCategories.contains(category) {
+            selectedCategories.remove(category)
+        } else {
+            selectedCategories.insert(category)
+        }
+    }
+    
+    func clearFilters() {
+        selectedCategories.removeAll()
+    }
 }
+
+// MARK: - Estruturas Auxiliares e Extensões
 
 struct CategorySummary: Identifiable {
     let id = UUID()
@@ -75,7 +99,7 @@ struct CategorySummary: Identifiable {
 
 extension DashboardViewModel {
     var groupedExpenses: [CategorySummary] {
-        let grouped = Dictionary(grouping: expenses) { $0.category }
+        let grouped = Dictionary(grouping: filteredExpenses) { $0.category }
         return grouped.map { (category, expenses) in
             CategorySummary(category: category, total: expenses.reduce(0) { $0 + $1.value })
         }

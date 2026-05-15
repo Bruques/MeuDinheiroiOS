@@ -35,12 +35,14 @@ struct DashboardView: View {
             }
             .background(Color(.systemBackground))
             List {
+                categoryFilterRow
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
                 chartSection
                 Spacer().frame(height: 16)
                 expensesList
             }
             .listStyle(.plain)
-            .navigationTitle("Dashboard")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: { showSettings = true }) {
@@ -151,16 +153,39 @@ struct DashboardView: View {
         }
     }
     
-    // Expenses list
+    @ViewBuilder
+    private var categoryFilterRow: some View {
+        if !viewModel.availableCategories.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    FilterChip(
+                        title: "Todas",
+                        isSelected: viewModel.selectedCategories.isEmpty,
+                        action: { viewModel.clearFilters() }
+                    )
+                    
+                    ForEach(viewModel.availableCategories, id: \.self) { category in
+                        FilterChip(
+                            title: category,
+                            isSelected: viewModel.selectedCategories.contains(category),
+                            action: { viewModel.toggleCategory(category) }
+                        )
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+    
     private var expensesList: some View {
         Group {
-            if viewModel.expenses.isEmpty {
+            if viewModel.filteredExpenses.isEmpty {
                 ContentUnavailableView("Sem gastos",
                                        systemImage: "tray",
                                        description: Text("Nenhum gasto encontrado para este período.")
                 )
             } else {
-                ForEach(viewModel.expenses) { expense in
+                ForEach(viewModel.filteredExpenses) { expense in
                     ExpenseRow(expense: expense)
                         .listRowInsets(EdgeInsets())
                         .contentShape(Rectangle())
@@ -218,5 +243,25 @@ struct ExpenseRow: View {
         .padding(.horizontal)
         .padding(.vertical, 12)
         .contentShape(Rectangle())
+    }
+}
+
+struct FilterChip: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(isSelected ? Color.blue : Color(.systemGray5))
+                .foregroundColor(isSelected ? .white : .primary)
+                .cornerRadius(20)
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
