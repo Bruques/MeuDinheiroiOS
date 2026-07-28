@@ -14,7 +14,7 @@ enum NetworkError: Error {
     case unauthorized
 }
 
-class NetworkService {
+class NetworkService: NetworkServiceProtocol {
     
     private let baseURL = "https://meu-dinheiro-backend-fjdi.onrender.com/api"
     

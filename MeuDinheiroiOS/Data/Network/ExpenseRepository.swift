@@ -7,16 +7,17 @@
 
 import Foundation
 import SwiftData
-import FirebaseAuth
 
 class ExpenseRepository: ExpenseRepositoryProtocol {
-    private let networkService: NetworkService
+    private let networkService: NetworkServiceProtocol
     private let context: ModelContext
+    private let tokenProvider: TokenProviding
     private var isSyncing = false
-    
-    init(networkService: NetworkService, context: ModelContext) {
+
+    init(networkService: NetworkServiceProtocol, context: ModelContext, tokenProvider: TokenProviding = FirebaseTokenProvider()) {
         self.networkService = networkService
         self.context = context
+        self.tokenProvider = tokenProvider
     }
     
     // MARK: - Salvar Despesa (A Mágica do Offline)
@@ -28,7 +29,7 @@ class ExpenseRepository: ExpenseRepositoryProtocol {
         // 2. Tenta mandar pra nuvem em segundo plano
         do {
             // Pega o token de forma segura do Firebase
-            let token = try await Auth.auth().currentUser?.getIDToken() ?? ""
+            let token = try await tokenProvider.getToken()
             
             try await networkService.postExpense(expense, token: token)
             
@@ -52,7 +53,7 @@ class ExpenseRepository: ExpenseRepositoryProtocol {
             
             do {
                 // 2. Busca na API os dados mais recentes
-                let token = try await Auth.auth().currentUser?.getIDToken() ?? ""
+                let token = try await tokenProvider.getToken()
                 let remoteExpenses = try await networkService.fetchExpenses(month: month, year: year, token: token)
                 
                 // 3. LIMPEZA DE CACHE (Evita itens duplicados entre o UUID do iPhone e o ID do Java)
@@ -107,7 +108,7 @@ class ExpenseRepository: ExpenseRepositoryProtocol {
         let allLocal = (try? context.fetch(descriptor)) ?? []
         let pendingExpenses = allLocal.filter { $0.syncStatus == .pending }
         guard !pendingExpenses.isEmpty else { return }
-        let token = try await Auth.auth().currentUser?.getIDToken() ?? ""
+        let token = try await tokenProvider.getToken()
         for expense in pendingExpenses {
             do {
                 try await networkService.postExpense(expense, token: token)
@@ -122,7 +123,7 @@ class ExpenseRepository: ExpenseRepositoryProtocol {
     func deleteExpense(_ expense: Expense) async throws {
         let isOnlyLocal = Int(expense.id) == nil
         if !isOnlyLocal {
-            let token = try await Auth.auth().currentUser?.getIDToken() ?? ""
+            let token = try await tokenProvider.getToken()
             try await networkService.deleteExpense(id: expense.id, token: token)
         }
         context.delete(expense)
@@ -134,7 +135,7 @@ class ExpenseRepository: ExpenseRepositoryProtocol {
         let isOnlyLocal = Int(expense.id) == nil
         
         if !isOnlyLocal {
-            let token = try await Auth.auth().currentUser?.getIDToken() ?? ""
+            let token = try await tokenProvider.getToken()
             try await networkService.updateExpense(expense, token: token)
         }
         try? context.save()
